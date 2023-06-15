@@ -286,4 +286,4 @@ if __name__ == '__main__':
                         vc_combine.click(combine_vocal_and_inst, [vc_output, vc_volume, vc_split_model], vc_combined_output)
                         tts_mode.change(change_to_tts_mode, [tts_mode, upload_mode], [vc_input, vc_upload, upload_mode, tts_text, tts_voice])
                         upload_mode.change(change_to_upload_mode, [upload_mode], [vc_input, vc_upload])
-        app.queue(concurrency_count=1, max_size=20, api_open=config.api).launch(share=config.colab)
+        app.queue(concurrency_count=1, max_size=20, api_open=config.api).launch(share=True)
