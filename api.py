@@ -1,4 +1,4 @@
-from app import vc_fn
+from app import create_vc_fn,vc_fn
 import asyncio
 import traceback
 from datetime import datetime
