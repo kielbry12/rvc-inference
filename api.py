@@ -1,10 +1,10 @@
-from app import create_vc_fn,vc_fn
 import asyncio
 import traceback
 from datetime import datetime
 import numpy as np
 from flask import Flask, request
 from flask_cloudflared import run_with_cloudflared
+from app import *
 
 app = Flask(__name__)
 run_with_cloudflared(app)  # Open a Cloudflare Tunnel when app is run
