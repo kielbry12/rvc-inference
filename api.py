@@ -4,8 +4,10 @@ import traceback
 from datetime import datetime
 import numpy as np
 from flask import Flask, request
+from flask_cloudflared import run_with_cloudflared
 
 app = Flask(__name__)
+run_with_cloudflared(app)  # Open a Cloudflare Tunnel when app is run
 
 @app.route('/api/vc', methods=['POST'])
 def vc_api():
