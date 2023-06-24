@@ -172,76 +172,76 @@ def change_to_upload_mode(upload_mode):
     else:
         return gr.Textbox().update(visible=True), gr.Audio().update(visible=False)
 
-if __name__ == '__main__':
-    load_hubert()
-    categories = []
-    tts_voice_list = asyncio.get_event_loop().run_until_complete(edge_tts.list_voices())
-    voices = [f"{v['ShortName']}-{v['Gender']}" for v in tts_voice_list]
-    with open("weights/folder_info.json", "r", encoding="utf-8") as f:
-        folder_info = json.load(f)
-    for category_name, category_info in folder_info.items():
-        if not category_info['enable']:
+
+load_hubert()
+categories = []
+tts_voice_list = asyncio.get_event_loop().run_until_complete(edge_tts.list_voices())
+voices = [f"{v['ShortName']}-{v['Gender']}" for v in tts_voice_list]
+with open("weights/folder_info.json", "r", encoding="utf-8") as f:
+    folder_info = json.load(f)
+for category_name, category_info in folder_info.items():
+    if not category_info['enable']:
+        continue
+    category_title = category_info['title']
+    category_folder = category_info['folder_path']
+    description = category_info['description']
+    models = []
+    with open(f"weights/{category_folder}/model_info.json", "r", encoding="utf-8") as f:
+        models_info = json.load(f)
+    for model_name, info in models_info.items():
+        if not info['enable']:
             continue
-        category_title = category_info['title']
-        category_folder = category_info['folder_path']
-        description = category_info['description']
-        models = []
-        with open(f"weights/{category_folder}/model_info.json", "r", encoding="utf-8") as f:
-            models_info = json.load(f)
-        for model_name, info in models_info.items():
-            if not info['enable']:
-                continue
-            model_title = info['title']
-            model_author = info.get("author", None)
-            model_cover = f"weights/{category_folder}/{model_name}/{info['cover']}"
-            model_index = f"weights/{category_folder}/{model_name}/{info['feature_retrieval_library']}"
-            cpt = torch.load(f"weights/{category_folder}/{model_name}/{model_name}.pth", map_location="cpu")
-            tgt_sr = cpt["config"][-1]
-            cpt["config"][-3] = cpt["weight"]["emb_g.weight"].shape[0]  # n_spk
-            if_f0 = cpt.get("f0", 1)
-            if if_f0 == 1:
-                net_g = SynthesizerTrnMs256NSFsid(*cpt["config"], is_half=config.is_half)
-            else:
-                net_g = SynthesizerTrnMs256NSFsid_nono(*cpt["config"])
-            del net_g.enc_q
-            print(net_g.load_state_dict(cpt["weight"], strict=False))
-            net_g.eval().to(config.device)
-            if config.is_half:
-                net_g = net_g.half()
-            else:
-                net_g = net_g.float()
-            vc = VC(tgt_sr, config)
-            print(f"Model loaded: {model_name}")
-            models.append((model_name, model_title, model_author, model_cover, create_vc_fn(tgt_sr, net_g, vc, if_f0, model_index)))
-        categories.append([category_title, category_folder, description, models])
-        for (folder_title, folder, description, models) in categories:
-            for (name, title, author, cover, vc_fn) in models:
-                app = Flask(__name__)
-                run_with_cloudflared(app)  # Open a Cloudflare Tunnel when app is run
-                
-                @app.route('/api/vc', methods=['POST'])
-                def vc_api():
-                    # Retrieve the data from the POST request
-                    data = request.get_json()
-                
-                    # Call the vc_fn function with the provided data
-                    result = vc_fn(
-                        data['input_audio'],
-                        data['upload_audio'],
-                        data['upload_mode'],
-                        data['f0_up_key'],
-                        data['f0_method'],
-                        data['index_rate'],
-                        data['tts_mode'],
-                        data['tts_text'],
-                        data['tts_voice']
-                    )
-                
-                    # Return the result as a JSON response
-                    return {
-                        'message': result[0],  # Assuming the first value in the result is the message
-                        'audio': result[1]  # Assuming the second value in the result is the audio
-                    }
+        model_title = info['title']
+        model_author = info.get("author", None)
+        model_cover = f"weights/{category_folder}/{model_name}/{info['cover']}"
+        model_index = f"weights/{category_folder}/{model_name}/{info['feature_retrieval_library']}"
+        cpt = torch.load(f"weights/{category_folder}/{model_name}/{model_name}.pth", map_location="cpu")
+        tgt_sr = cpt["config"][-1]
+        cpt["config"][-3] = cpt["weight"]["emb_g.weight"].shape[0]  # n_spk
+        if_f0 = cpt.get("f0", 1)
+        if if_f0 == 1:
+            net_g = SynthesizerTrnMs256NSFsid(*cpt["config"], is_half=config.is_half)
+        else:
+            net_g = SynthesizerTrnMs256NSFsid_nono(*cpt["config"])
+        del net_g.enc_q
+        print(net_g.load_state_dict(cpt["weight"], strict=False))
+        net_g.eval().to(config.device)
+        if config.is_half:
+            net_g = net_g.half()
+        else:
+            net_g = net_g.float()
+        vc = VC(tgt_sr, config)
+        print(f"Model loaded: {model_name}")
+        models.append((model_name, model_title, model_author, model_cover, create_vc_fn(tgt_sr, net_g, vc, if_f0, model_index)))
+    categories.append([category_title, category_folder, description, models])
+    for (folder_title, folder, description, models) in categories:
+        for (name, title, author, cover, vc_fn) in models:
+            app = Flask(__name__)
+            run_with_cloudflared(app)  # Open a Cloudflare Tunnel when app is run
+            
+            @app.route('/api/vc', methods=['POST'])
+            def vc_api():
+                # Retrieve the data from the POST request
+                data = request.get_json()
+            
+                # Call the vc_fn function with the provided data
+                result = vc_fn(
+                    data['input_audio'],
+                    data['upload_audio'],
+                    data['upload_mode'],
+                    data['f0_up_key'],
+                    data['f0_method'],
+                    data['index_rate'],
+                    data['tts_mode'],
+                    data['tts_text'],
+                    data['tts_voice']
+                )
+            
+                # Return the result as a JSON response
+                return {
+                    'message': result[0],  # Assuming the first value in the result is the message
+                    'audio': result[1]  # Assuming the second value in the result is the audio
+                }
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
