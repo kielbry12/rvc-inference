@@ -26,6 +26,10 @@ from fairseq import checkpoint_utils
 from infer_pack.models import SynthesizerTrnMs256NSFsid, SynthesizerTrnMs256NSFsid_nono
 from vc_infer_pipeline import VC
 from config import Config
+from scipy.io import wavfile
+import base64
+import json
+
 config = Config()
 logging.getLogger("numba").setLevel(logging.WARNING)
 
@@ -236,12 +240,32 @@ for category_name, category_info in folder_info.items():
                     data['tts_text'],
                     data['tts_voice']
                 )
-            
+                output_file = '/content/output.wav'
+
+                # Write the audio data to a WAV file
+                wavfile.write(output_file, result[0], result[1)
+
+                # Read the audio file
+                with open(output_file, 'rb') as file:
+                    audio_data = file.read()
+                
+                # Encode the audio data as base64
+                encoded_audio = base64.b64encode(audio_data).decode('utf-8')
+
                 # Return the result as a JSON response
-                return {
-                        'message': result[0],
-                        'audio': result[1].tolist()  # Convert the ndarray to a nested Python list
+                # return {
+                #         'message': result[0],
+                #         'audio': result[1].tolist()  # Convert the ndarray to a nested Python list
+                #     }
+
+                response_data = {
+                        'audio': encoded_audio
                     }
+                # Convert the response to JSON
+                json_response = json.dumps(response_data)
+                
+                # Return the JSON response
+                return json_response
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
