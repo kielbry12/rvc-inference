@@ -238,10 +238,7 @@ for category_name, category_info in folder_info.items():
                 )
             
                 # Return the result as a JSON response
-                return {
-                    'message': result[0],  # Assuming the first value in the result is the message
-                    'audio': result[1]  # Assuming the second value in the result is the audio
-                }
+                return result
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
