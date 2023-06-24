@@ -238,7 +238,10 @@ for category_name, category_info in folder_info.items():
                 )
             
                 # Return the result as a JSON response
-                return result
+                return {
+                        'message': result[0],
+                        'audio': result[1].tolist()  # Convert the ndarray to a nested Python list
+                    }
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
