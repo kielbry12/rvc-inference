@@ -243,7 +243,7 @@ for category_name, category_info in folder_info.items():
                 output_file = '/content/output.wav'
 
                 # Write the audio data to a WAV file
-                wavfile.write(output_file, result[0], result[1)
+                wavfile.write(output_file, result[0], result[1]
 
                 # Read the audio file
                 with open(output_file, 'rb') as file:
