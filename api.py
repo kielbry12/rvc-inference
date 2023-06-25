@@ -2,7 +2,7 @@ import asyncio
 import traceback
 from datetime import datetime
 import numpy as np
-from flask import Flask, request
+from flask import Flask, request, send_file
 from flask_cloudflared import run_with_cloudflared
 import os
 import glob
@@ -224,8 +224,13 @@ for category_name, category_info in folder_info.items():
             run_with_cloudflared(app)  # Open a Cloudflare Tunnel when app is run
             @app.route('/')
             def index():
+                audio_url = "/audio"  # URL to access the audio file
+                return f"The audio file can be accessed at <a href='{audio_url}'>{audio_url}</a>"
+            
+            @app.route('/audio')
+            def serve_audio():
                 audio_file = '/content/output.wav'  # Path to your audio file
-                return render_template('index.html', audio_file=audio_file)
+                return send_file(audio_file, mimetype='audio/wav')
                 
             @app.route('/api/vc', methods=['POST'])
             def vc_api():
