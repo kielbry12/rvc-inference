@@ -222,7 +222,11 @@ for category_name, category_info in folder_info.items():
         for (name, title, author, cover, vc_fn) in models:
             app = Flask(__name__)
             run_with_cloudflared(app)  # Open a Cloudflare Tunnel when app is run
-            
+            @app.route('/')
+            def index():
+                audio_file = '/content/output.wav'  # Path to your audio file
+                return render_template('index.html', audio_file=audio_file)
+                
             @app.route('/api/vc', methods=['POST'])
             def vc_api():
                 # Retrieve the data from the POST request
