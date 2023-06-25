@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Output</title>
+</head>
+<body>
+    <audio id="audio-player" controls>
+        <source id="audio-source" src="" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
+
+    <script>
+        var audioUrl = "{{ audio_file }}";
+        var audioSource = document.getElementById('audio-source');
+        audioSource.src = audioUrl;
+
+        var audioPlayer = document.getElementById('audio-player');
+        audioPlayer.load();
+    </script>
+</body>
+</html>
