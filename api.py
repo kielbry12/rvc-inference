@@ -247,7 +247,7 @@ for category_name, category_info in folder_info.items():
                     data['tts_text'],
                     data['tts_voice']
                 )
-                output_file = '/content/output.wav'
+                output_file = '/static/audio/output.wav'
 
                 # Write the audio data to a WAV file
                 wavfile.write(output_file, result[0], result[1])
