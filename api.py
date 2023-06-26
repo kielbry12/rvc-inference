@@ -226,7 +226,7 @@ for category_name, category_info in folder_info.items():
 
             @app.route('/')
             def index():
-                audio_file = '/content/output.wav'  # Path to your audio file
+                audio_file = '/static/audio/output.wav'  # Path to your audio file
                 return render_template('index.html', audio_file=audio_file)
 
             
